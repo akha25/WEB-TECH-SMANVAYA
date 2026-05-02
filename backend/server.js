@@ -7,8 +7,13 @@ const routes = require('./src/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
+
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.use('/api', routes);
 
@@ -20,7 +25,9 @@ app.use((err, req, res, next) => {
 
 sequelize.sync().then(() => {
   console.log('Database connected and synced');
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
   });
+}).catch((err) => {
+  console.error('Database connection failed:', err);
 });
