@@ -10,9 +10,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// Health check endpoint for Railway
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+// Test endpoint for Railway
+app.get('/', (req, res) => {
+  res.status(200).send('Backend running');
 });
 
 app.use('/api', routes);
