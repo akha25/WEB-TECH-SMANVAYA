@@ -5,14 +5,14 @@ const sequelize = require('./src/utils/db');
 const routes = require('./src/routes');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// Test endpoint for Railway
+// Test endpoint for Render
 app.get('/', (req, res) => {
-  res.status(200).send('Backend running');
+  res.status(200).send('Backend is running');
 });
 
 app.use('/api', routes);
