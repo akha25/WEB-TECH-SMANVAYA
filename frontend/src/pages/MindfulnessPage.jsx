@@ -90,7 +90,7 @@ const MindfulnessPage = () => {
           <div className="relative w-64 h-64 flex items-center justify-center">
             <motion.div
               animate={isBreathing ? {
-                scale: breathPhase === 'Inhale' ? 1.5 : breathPhase === 'Exhale' ? 1 : breathPhase === 'Hold' && breathPhase === 'Hold' ? (breathPhase === 'Inhale' ? 1.5 : 1) : 1,
+                scale: breathPhase === 'Inhale' ? 1.5 : breathPhase === 'Exhale' ? 1 : 1.3,
                 backgroundColor: breathPhase === 'Inhale' ? 'var(--accent)' : 'var(--accentAlt)',
                 boxShadow: breathPhase === 'Inhale' ? '0 0 50px var(--glow)' : '0 0 20px var(--glow)',
               } : { scale: 1 }}

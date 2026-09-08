@@ -4,22 +4,28 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Flame, Beef, Wheat, Droplets, Plus, Trash2, Clock, Utensils } from 'lucide-react';
 
-const MacroProgress = ({ label, val, goal, color, icon: Icon }) => (
-  <div className="flex flex-col gap-3">
-    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-      <span className="flex items-center gap-2 text-textMuted"><Icon size={14} /> {label}</span>
-      <span>{val.toFixed(1)}g / {goal}g</span>
+const MacroProgress = ({ label, val = 0, goal = 1, color, icon: Icon }) => {
+  const safeVal = Number(val) || 0;
+  const safeGoal = Number(goal) > 0 ? Number(goal) : 1;
+  const pct = Math.min((safeVal / safeGoal) * 100, 100) || 0;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+        <span className="flex items-center gap-2 text-textMuted"><Icon size={14} /> {label}</span>
+        <span>{safeVal.toFixed(1)}g / {safeGoal}g</span>
+      </div>
+      <div className="h-2 bg-surface rounded-full overflow-hidden">
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className={`h-full ${color}`}
+        />
+      </div>
     </div>
-    <div className="h-2 bg-surface rounded-full overflow-hidden">
-      <motion.div 
-        initial={{ width: 0 }}
-        animate={{ width: `${Math.min((val/goal)*100, 100)}%` }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        className={`h-full ${color}`}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 const NutritionPage = () => {
   const { user } = useAuth();

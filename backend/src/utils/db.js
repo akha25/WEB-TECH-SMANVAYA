@@ -1,47 +1,47 @@
 const { Sequelize } = require('sequelize');
+const path = require('path');
+require('dotenv').config();
 
-// 🔹 Validate required env variables
-const requiredEnv = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST'];
+// Determine dialect: default to sqlite if DB_DIALECT is 'sqlite' or if MySQL env vars are missing
+const isSqlite = process.env.DB_DIALECT === 'sqlite' || 
+  (!process.env.DB_HOST && !process.env.DB_NAME) || 
+  process.env.DB_DIALECT !== 'mysql';
 
-for (const key of requiredEnv) {
-  if (!process.env[key]) {
-    throw new Error(`❌ Missing required environment variable: ${key}`);
-  }
-}
+let sequelize;
 
-// 🔹 Create Sequelize instance (MySQL ONLY)
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT) || 3306,
-    dialect: 'mysql',
+if (isSqlite) {
+  const dbPath = process.env.DB_STORAGE 
+    ? path.resolve(process.env.DB_STORAGE) 
+    : path.resolve(__dirname, '../../database.sqlite');
+
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: dbPath,
     logging: false,
-
-    dialectOptions: process.env.DB_SSL === 'true'
-      ? {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false,
-        },
-      }
-      : {},
-  }
-);
-
-// 🔹 Test DB connection
-async function testConnection() {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ MySQL Database connected successfully");
-  } catch (error) {
-    console.error("❌ MySQL connection failed:", error.message);
-    process.exit(1); // 🔥 stop app if DB fails
-  }
+  });
+  console.log(`📦 Database configured with SQLite at: ${dbPath}`);
+} else {
+  // MySQL Configuration
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 3306,
+      dialect: 'mysql',
+      logging: false,
+      dialectOptions: process.env.DB_SSL === 'true'
+        ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        }
+        : {},
+    }
+  );
+  console.log(`🐬 Database configured with MySQL on ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 3306}`);
 }
-
-testConnection();
 
 module.exports = sequelize;

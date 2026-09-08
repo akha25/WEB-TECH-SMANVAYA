@@ -37,11 +37,13 @@ exports.updateGoalProgress = async (req, res) => {
     
     // Calculate milestones
     const progress = (goal.currentValue / goal.targetValue) * 100;
-    const milestones = [25, 50, 75, 100];
-    const reached = milestones.filter(m => progress >= m && !goal.milestonesReached.includes(m));
+    const currentMilestones = Array.isArray(goal.milestonesReached)
+      ? goal.milestonesReached
+      : (typeof goal.milestonesReached === 'string' ? JSON.parse(goal.milestonesReached || '[]') : []);
+    const reached = milestones.filter(m => progress >= m && !currentMilestones.includes(m));
     
     if (reached.length > 0) {
-      goal.milestonesReached = [...goal.milestonesReached, ...reached];
+      goal.milestonesReached = [...currentMilestones, ...reached];
     }
     
     if (progress >= 100) {

@@ -126,7 +126,8 @@ const WorkoutsPage = () => {
     const records = {};
     workouts.forEach(w => {
       w.exercises?.forEach(ex => {
-        const maxWeight = Math.max(...ex.sets.map(s => parseFloat(s.weight) || 0));
+        const weights = (ex.sets || []).map(s => parseFloat(s.weight) || 0);
+        const maxWeight = weights.length ? Math.max(...weights) : 0;
         if (!records[ex.name] || maxWeight > records[ex.name].weight) {
           records[ex.name] = { weight: maxWeight, date: w.date };
         }
@@ -160,18 +161,19 @@ const WorkoutsPage = () => {
     const latestHealth = healthLogs[0] || {};
     const latestFood = foodLogs.filter(f => f.date === today);
     const totalCals = latestFood.reduce((acc, f) => acc + (f.calories || 0), 0);
+    const effectiveHeight = user?.height || height || 175;
 
     return {
       streak,
       todayWorkout: todayWorkout ? todayWorkout.name : 'Rest Day',
-      water: latestHealth.waterIntake || 0,
-      sleep: latestHealth.sleepHours || 0,
+      water: latestHealth.water ?? latestHealth.waterIntake ?? 0,
+      sleep: latestHealth.sleep ?? latestHealth.sleepHours ?? 0,
       calories: totalCals,
       weight: latestHealth.weight || 0,
-      bmi: latestHealth.weight ? (latestHealth.weight / Math.pow(height / 100, 2)).toFixed(1) : 0,
+      bmi: latestHealth.weight ? (latestHealth.weight / Math.pow(effectiveHeight / 100, 2)).toFixed(1) : 0,
       prsThisWeek: 3 // Mocked for now
     };
-  }, [workouts, healthLogs, foodLogs, height]);
+  }, [workouts, healthLogs, foodLogs, height, user]);
 
   const chartData = useMemo(() => {
     const last7Days = [...Array(7)].map((_, i) => {
@@ -189,8 +191,8 @@ const WorkoutsPage = () => {
         date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
         workouts: dayWorkouts.length,
         calories: dayFood.reduce((acc, f) => acc + (f.calories || 0), 0),
-        water: dayHealth.waterIntake || 0,
-        sleep: dayHealth.sleepHours || 0
+        water: dayHealth.water ?? dayHealth.waterIntake ?? 0,
+        sleep: dayHealth.sleep ?? dayHealth.sleepHours ?? 0
       };
     });
   }, [workouts, healthLogs, foodLogs]);
@@ -585,10 +587,10 @@ const WorkoutsPage = () => {
         {['Protein', 'Carbs', 'Fats'].map((macro, i) => {
           const colors = ['#f87171', '#fbbf24', '#60a5fa'];
           const today = new Date().toISOString().split('T')[0];
-          const todayFood = foodLogs.filter(f => f.date === today);
-          const current = todayFood.reduce((acc, f) => acc + (f[macro.toLowerCase()] || 0), 0);
+          const key = macro.toLowerCase() === 'fats' ? 'fat' : macro.toLowerCase();
+          const current = todayFood.reduce((acc, f) => acc + (f[key] || 0), 0);
           const goal = macro === 'Protein' ? 180 : macro === 'Carbs' ? 250 : 70; // Mock goals
-          const percentage = Math.min(Math.round((current / goal) * 100), 100);
+          const percentage = Math.min(Math.round((current / (goal || 1)) * 100), 100);
 
           return (
             <div key={macro} className="glass p-8 rounded-[32px] flex flex-col items-center gap-4">

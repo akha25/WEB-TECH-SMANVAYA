@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const CircularProgress = ({ value, goal, color, icon: Icon, label, size = 120 }) => {
-  const percentage = Math.min((value / goal) * 100, 100);
+const CircularProgress = ({ value = 0, goal = 1, color, icon: Icon, label, size = 120 }) => {
+  const safeVal = Number(value) || 0;
+  const safeGoal = Number(goal) > 0 ? Number(goal) : 1;
+  const percentage = Math.min((safeVal / safeGoal) * 100, 100) || 0;
   const radius = size * 0.4;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
@@ -54,7 +56,7 @@ const CircularProgress = ({ value, goal, color, icon: Icon, label, size = 120 })
       
       <div className="text-center">
         <h4 className="text-[10px] font-bold text-textMuted uppercase tracking-widest">{label}</h4>
-        <p className="text-sm font-black">{value.toLocaleString()} <span className="text-[10px] opacity-50">{goal.toLocaleString()}</span></p>
+        <p className="text-sm font-black">{safeVal.toLocaleString()} <span className="text-[10px] opacity-50">{safeGoal.toLocaleString()}</span></p>
       </div>
     </div>
   );

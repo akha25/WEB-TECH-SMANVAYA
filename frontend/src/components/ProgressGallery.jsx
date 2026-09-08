@@ -96,13 +96,21 @@ const ProgressGallery = () => {
           <div className="flex flex-col gap-4">
             <span className="text-[10px] font-bold text-textMuted uppercase tracking-widest text-center">Initial</span>
             <div className="aspect-[3/4] rounded-3xl overflow-hidden glass">
-              <img src={photos[0].url} className="w-full h-full object-cover" alt="Before" />
+              {photos.length > 0 ? (
+                <img src={photos[0].url} className="w-full h-full object-cover" alt="Before" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-textMuted font-bold">No Photos</div>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-4">
             <span className="text-[10px] font-bold text-accent uppercase tracking-widest text-center">Current</span>
             <div className="aspect-[3/4] rounded-3xl overflow-hidden glass border-accent/20">
-              <img src={photos[photos.length - 1].url} className="w-full h-full object-cover" alt="After" />
+              {photos.length > 0 ? (
+                <img src={photos[photos.length - 1].url} className="w-full h-full object-cover" alt="After" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-textMuted font-bold">No Photos</div>
+              )}
             </div>
           </div>
         </div>
@@ -125,7 +133,14 @@ const ProgressGallery = () => {
             >
               <img src={selectedPhoto.url} className="w-full h-full object-cover" alt={selectedPhoto.label} />
               <div className="absolute top-8 right-8 flex gap-4">
-                <button className="p-4 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20">
+                <button 
+                  onClick={() => {
+                    setPhotos(photos.filter(p => p.id !== selectedPhoto.id));
+                    setSelectedPhoto(null);
+                  }}
+                  className="p-4 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
+                  title="Delete Photo"
+                >
                   <Trash2 size={24} />
                 </button>
                 <button 

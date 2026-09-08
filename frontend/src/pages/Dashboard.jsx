@@ -93,7 +93,7 @@ const StatCard = ({ title, value, unit, trend, icon: Icon, color, delay, onClick
     <h3 className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">{title}</h3>
     <div className="flex items-baseline gap-2">
       <span className="text-3xl font-extrabold">
-        <CountUp end={parseFloat(value.toString().replace(/,/g, ''))} separator="," duration={2} />
+        <CountUp end={parseFloat((value ?? 0).toString().replace(/,/g, '')) || 0} separator="," duration={2} />
       </span>
       <span className="text-textMuted text-[10px] font-bold uppercase tracking-widest">{unit}</span>
     </div>
@@ -221,8 +221,8 @@ const Dashboard = () => {
   const currentMetricLabels = [...logs].reverse().map(l => new Date(l.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }));
   const metricInfo = progressMetrics.find(m => m.id === selectedProgressMetric);
 
-  const avg = currentMetricLogs.length ? (currentMetricLogs.reduce((a, b) => a + b, 0) / currentMetricLogs.length).toFixed(1) : 0;
-  const max = currentMetricLogs.length ? Math.max(...currentMetricLogs) : 0;
+  const avg = currentMetricLogs.length ? (currentMetricLogs.reduce((a, b) => a + (Number(b) || 0), 0) / currentMetricLogs.length).toFixed(1) : '0';
+  const max = currentMetricLogs.length ? Math.max(0, ...currentMetricLogs) : 0;
   const min = currentMetricLogs.length ? Math.min(...currentMetricLogs) : 0;
 
   if (loading) return (
